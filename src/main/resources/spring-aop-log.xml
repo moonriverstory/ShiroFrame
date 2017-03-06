@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <!--
+    配置日志 使用Aop 记录日志
+    注意:
+    1). 此处proxy-target-class="true" 否则Action内的参数会被拦截掉,导致action内无法获得前台传递的参数
+    2). Action需交给spring容器去管理
+    -->
+    <aop:config expose-proxy="true" proxy-target-class="true">
+        <aop:aspect  id="aopRiZhiAspect" ref="myRiZhi">
+            <!-- 对哪些方法进行日志记录, 此处屏蔽action内的set get方法 -->
+            <aop:pointcut id="aopRiZhi" expression="(execution(* shiro..service..*+.*(..)) ) and (!execution(* shiro..service..*+.*(..)) ) and (!execution(* shiro..service..*+.*(..)) )" />
+            <aop:before pointcut-ref="aopRiZhi" method="doBefore"/>
+            <aop:after pointcut-ref="aopRiZhi" method="doAfter"/>
+            <aop:around pointcut-ref="aopRiZhi" method="doAround"/>
+        </aop:aspect>
+    </aop:config>
+
+    <bean id="myRiZhi" class="shiro.spring.AopLog"></bean>   <!-- Aop日志类 -->
+
+</beans>
